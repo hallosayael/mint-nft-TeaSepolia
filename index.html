@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -7,84 +7,116 @@
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   
   <style>
-    /* Reset some default styles */
-    body, h1, button, span {
+    /* Basic Reset */
+    * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
 
-    /* General body styles */
+    /* Global Styles */
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f7f7;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #4e73df, #1cc88a);
+      color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      color: #333;
-    }
-
-    /* Centering container */
-    .container {
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       text-align: center;
-      max-width: 400px;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.8);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
       width: 100%;
     }
 
-    /* Heading style */
     h1 {
-      font-size: 2rem;
+      font-size: 2.5rem;
       margin-bottom: 20px;
-      color: #333;
-      font-weight: 700;
+      font-weight: 600;
+      color: #fff;
     }
 
-    /* Button styles */
+    /* Button Styles */
     button {
-      background-color: #007BFF;
-      color: white;
+      background-color: #3498db;
+      color: #fff;
       border: none;
-      padding: 12px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: background-color 0.3s;
+      padding: 15px;
       width: 100%;
-      margin-bottom: 15px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin-bottom: 20px;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background-color: #2980b9;
+      transform: scale(1.05);
     }
 
     button:disabled {
-      background-color: #cccccc;
+      background-color: #bdc3c7;
       cursor: not-allowed;
     }
 
-    /* Address display */
-    #walletAddress {
-      display: block;
-      margin-top: 10px;
-      color: #555;
-      font-size: 1rem;
-      font-weight: bold;
+    /* Loading Spinner */
+    .loading {
+      display: none;
+      margin: 10px auto;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 2s linear infinite;
     }
 
-    /* Media Queries for responsiveness */
-    @media (max-width: 600px) {
+    /* Success Message */
+    #successMessage {
+      display: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #2ecc71;
+    }
+
+    /* Wallet Address */
+    #walletAddress {
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-top: 20px;
+      color: #fff;
+      word-wrap: break-word;
+    }
+
+    /* Responsiveness */
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px;
+      }
+
       h1 {
-        font-size: 1.5rem;
+        font-size: 2rem;
       }
 
       button {
-        font-size: 0.9rem;
+        font-size: 1rem;
+        padding: 12px;
       }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -92,14 +124,16 @@
   <div class="container">
     <h1>Mint Your NFT</h1>
     <button id="connectWallet">Connect Wallet</button>
-    <span id="walletAddress" style="margin-left: 10px;"></span>
+    <span id="walletAddress" style="margin-top: 10px; color: #ccc;"></span>
     <br><br>
     <button id="mintNFT">Mint NFT</button>
+    <div class="loading" id="loadingSpinner"></div>
+    <div id="successMessage">NFT Minted Successfully!</div>
   </div>
 
   <script>
     const contractAddress = "0x7E1b2642c7c68Ba35848ef84b43C189ad0b8A799";
-    const contractABI = [
+    const contractABI =[
 	{
 		"inputs": [
 			{
@@ -614,6 +648,9 @@
     let contract;
 
     const walletAddressEl = document.getElementById('walletAddress');
+    const mintButton = document.getElementById('mintNFT');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const successMessage = document.getElementById('successMessage');
 
     document.getElementById('connectWallet').onclick = async () => {
       if (window.ethereum) {
@@ -635,15 +672,28 @@
     document.getElementById('mintNFT').onclick = async () => {
       if (!contract) return alert("Please connect wallet first!");
 
+      // Show the loading spinner and disable the button
+      mintButton.disabled = true;
+      loadingSpinner.style.display = "block";
+      successMessage.style.display = "none"; // Hide success message during minting
+
       try {
         const recipient = await signer.getAddress();
-        const tokenURI = "https://ipfs.io/ipfs/QmUDu4VuLJ5qCkQLKjv3WZSkpTb3ZxD8N5wVZpHHz6cY9R"; // Ganti dengan URI metadata NFT kamu
+        const tokenURI = "https://ipfs.io/ipfs/QmUDu4VuLJ5qCkQLKjv3WZSkpTb3ZxD8N5wVZpHHz6cY9R"; // Update with your NFT URI
         const tx = await contract.mintNFT(recipient, tokenURI);
         await tx.wait();
-        alert("NFT minted successfully!");
+
+        // Show success message and hide loading spinner
+        loadingSpinner.style.display = "none";
+        successMessage.style.display = "block";
+        mintButton.disabled = false; // Enable the mint button
       } catch (err) {
         console.error(err);
         alert("Minting failed!");
+
+        // Hide loading spinner and enable the mint button
+        loadingSpinner.style.display = "none";
+        mintButton.disabled = false;
       }
     };
   </script>
