@@ -5,131 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mint NFT - TEA Sepolia</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-  
   <style>
-    /* Basic Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    /* Global Styles */
+    /* Global styles */
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #4e73df, #1cc88a);
+      font-family: 'Arial', sans-serif;
+      background: #0e0e0e;
       color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
       text-align: center;
-      padding: 20px;
-    }
-
-    .container {
-      background: rgba(0, 0, 0, 0.8);
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      max-width: 500px;
-      width: 100%;
+      flex-direction: column;
     }
 
     h1 {
       font-size: 2.5rem;
       margin-bottom: 20px;
-      font-weight: 600;
-      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
     }
 
-    /* Button Styles */
+    /* Button styles */
     button {
-      background-color: #3498db;
+      background-color: #1e1e1e;
       color: #fff;
-      border: none;
-      padding: 15px;
-      width: 100%;
-      font-size: 1.2rem;
-      font-weight: 500;
+      border: 2px solid #fff;
+      padding: 12px 24px;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      margin-bottom: 20px;
+      font-size: 1rem;
+      margin: 10px;
+      transition: background-color 0.3s, transform 0.3s;
     }
 
     button:hover {
-      background-color: #2980b9;
+      background-color: #00aaff;
       transform: scale(1.05);
     }
 
-    button:disabled {
-      background-color: #bdc3c7;
-      cursor: not-allowed;
+    /* Wallet address styles */
+    #walletAddress {
+      font-weight: bold;
+      color: #00aaff;
+      margin-top: 10px;
     }
 
-    /* Loading Spinner */
-    .loading {
+    /* Loading overlay */
+    #loadingOverlay {
       display: none;
-      margin: 10px auto;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 2s linear infinite;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      font-size: 1.5rem;
+      z-index: 1000;
     }
 
-    /* Success Message */
+    /* Success message */
     #successMessage {
       display: none;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #2ecc71;
-    }
-
-    /* Wallet Address */
-    #walletAddress {
-      display: block;
-      font-size: 1rem;
-      font-weight: 600;
+      font-size: 1.5rem;
       margin-top: 20px;
-      color: #fff;
-      word-wrap: break-word;
-    }
-
-    /* Responsiveness */
-    @media (max-width: 768px) {
-      .container {
-        padding: 30px;
-      }
-
-      h1 {
-        font-size: 2rem;
-      }
-
-      button {
-        font-size: 1rem;
-        padding: 12px;
-      }
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      color: #00ff00;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Mint Your NFT</h1>
-    <button id="connectWallet">Connect Wallet</button>
-    <span id="walletAddress" style="margin-top: 10px; color: #ccc;"></span>
-    <br><br>
-    <button id="mintNFT">Mint NFT</button>
-    <div class="loading" id="loadingSpinner"></div>
-    <div id="successMessage">NFT Minted Successfully!</div>
+  <h1>Mint Your NFT</h1>
+  <button id="connectWallet">Connect Wallet</button>
+  <span id="walletAddress"></span>
+  <br><br>
+  <button id="mintNFT">Mint NFT</button>
+
+  <!-- Loading overlay -->
+  <div id="loadingOverlay">
+    <span>Minting your NFT...</span>
   </div>
+
+  <!-- Success message -->
+  <div id="successMessage">NFT minted successfully!</div>
 
   <script>
     const contractAddress = "0x7E1b2642c7c68Ba35848ef84b43C189ad0b8A799";
@@ -646,12 +607,11 @@
     let provider;
     let signer;
     let contract;
-
     const walletAddressEl = document.getElementById('walletAddress');
-    const mintButton = document.getElementById('mintNFT');
-    const loadingSpinner = document.getElementById('loadingSpinner');
+    const loadingOverlay = document.getElementById('loadingOverlay');
     const successMessage = document.getElementById('successMessage');
 
+    // Connect Wallet
     document.getElementById('connectWallet').onclick = async () => {
       if (window.ethereum) {
         provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -669,31 +629,31 @@
       }
     };
 
+    // Mint NFT with loading effect
     document.getElementById('mintNFT').onclick = async () => {
       if (!contract) return alert("Please connect wallet first!");
 
-      // Show the loading spinner and disable the button
-      mintButton.disabled = true;
-      loadingSpinner.style.display = "block";
-      successMessage.style.display = "none"; // Hide success message during minting
-
       try {
+        // Show loading overlay
+        loadingOverlay.style.display = 'flex';
+
         const recipient = await signer.getAddress();
-        const tokenURI = "https://ipfs.io/ipfs/QmUDu4VuLJ5qCkQLKjv3WZSkpTb3ZxD8N5wVZpHHz6cY9R"; // Update with your NFT URI
+        const tokenURI = "https://ipfs.io/ipfs/QmUDu4VuLJ5qCkQLKjv3WZSkpTb3ZxD8N5wVZpHHz6cY9R"; // Change this to your token URI
         const tx = await contract.mintNFT(recipient, tokenURI);
         await tx.wait();
 
-        // Show success message and hide loading spinner
-        loadingSpinner.style.display = "none";
-        successMessage.style.display = "block";
-        mintButton.disabled = false; // Enable the mint button
+        // Hide loading overlay and show success message
+        loadingOverlay.style.display = 'none';
+        successMessage.style.display = 'block';
+
+        setTimeout(() => {
+          successMessage.style.display = 'none';
+        }, 5000); // Hide success message after 5 seconds
+
       } catch (err) {
         console.error(err);
+        loadingOverlay.style.display = 'none';
         alert("Minting failed!");
-
-        // Hide loading spinner and enable the mint button
-        loadingSpinner.style.display = "none";
-        mintButton.disabled = false;
       }
     };
   </script>
