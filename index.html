@@ -9,10 +9,12 @@
 <body>
   <h1>Mint Your NFT</h1>
   <button id="connectWallet">Connect Wallet</button>
+  <span id="walletAddress" style="margin-left: 10px; font-weight: bold;"></span>
+  <br><br>
   <button id="mintNFT">Mint NFT</button>
 
   <script>
-    const contractAddress = "0x7E1b2642c7c68Ba35848ef84b43C189ad0b8A799"; // Ganti dengan alamat kontrak kamu
+    const contractAddress = "0x7E1b2642c7c68Ba35848ef84b43C189ad0b8A799";
     const contractABI = [
 	{
 		"inputs": [
@@ -527,12 +529,19 @@
     let signer;
     let contract;
 
+    const walletAddressEl = document.getElementById('walletAddress');
+
     document.getElementById('connectWallet').onclick = async () => {
       if (window.ethereum) {
         provider = new ethers.providers.Web3Provider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
         signer = provider.getSigner();
         contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        const address = await signer.getAddress();
+        const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
+        walletAddressEl.textContent = shortAddress;
+
         alert("Wallet connected!");
       } else {
         alert("Install MetaMask first!");
@@ -543,7 +552,9 @@
       if (!contract) return alert("Please connect wallet first!");
 
       try {
-        const tx = await contract.mint(); // Ganti sesuai fungsi mint kamu
+        const recipient = await signer.getAddress();
+        const tokenURI = "https://ipfs.io/ipfs/QmUDu4VuLJ5qCkQLKjv3WZSkpTb3ZxD8N5wVZpHHz6cY9R"; // Ganti dengan URI metadata NFT kamu
+        const tx = await contract.mintNFT(recipient, tokenURI);
         await tx.wait();
         alert("NFT minted successfully!");
       } catch (err) {
