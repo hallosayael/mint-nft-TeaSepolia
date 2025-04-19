@@ -6,30 +6,53 @@
   <title>Mint NFT - TEA Sepolia</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
-    /* Global styles */
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #111;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
-      text-align: center;
+      padding: 0;
+    }
+
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      padding: 2rem;
+      display: flex;
       flex-direction: column;
-      padding: 20px;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
     }
 
     h1 {
       font-size: 2.5rem;
       margin-bottom: 30px;
+      color: #fff;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: #fff;
     }
 
-    /* Button styles */
+    /* Connect wallet button - Top right corner */
+    #connectWallet {
+      position: absolute;
+      top: 2rem;
+      right: 2rem;
+      background: #00FFC2;
+      color: #121212;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      z-index: 10;
+    }
+
+    #connectWallet:hover {
+      background: #00cfa2;
+    }
+
+    /* Mint button */
     button {
       background: linear-gradient(90deg, rgba(0, 170, 255, 1) 0%, rgba(0, 125, 255, 1) 100%);
       color: #fff;
@@ -55,14 +78,12 @@
       box-shadow: none;
     }
 
-    /* Wallet address styles */
     #walletAddress {
       font-weight: bold;
       color: #00aaff;
       margin-top: 10px;
     }
 
-    /* Loading overlay */
     #loadingOverlay {
       display: none;
       position: fixed;
@@ -78,7 +99,6 @@
       z-index: 1000;
     }
 
-    /* Success message */
     #successMessage {
       display: none;
       font-size: 1.5rem;
@@ -104,7 +124,7 @@
 
   <script>
     const contractAddress = "0x7E1b2642c7c68Ba35848ef84b43C189ad0b8A799";
-    const contractABI =[
+    const contractABI = [
 	{
 		"inputs": [
 			{
