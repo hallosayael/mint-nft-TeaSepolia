@@ -1,17 +1,101 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mint NFT - TEA Sepolia</title>
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  
+  <style>
+    /* Reset some default styles */
+    body, h1, button, span {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* General body styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    /* Centering container */
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    /* Heading style */
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #333;
+      font-weight: 700;
+    }
+
+    /* Button styles */
+    button {
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    /* Address display */
+    #walletAddress {
+      display: block;
+      margin-top: 10px;
+      color: #555;
+      font-size: 1rem;
+      font-weight: bold;
+    }
+
+    /* Media Queries for responsiveness */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      button {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Mint Your NFT</h1>
-  <button id="connectWallet">Connect Wallet</button>
-  <span id="walletAddress" style="margin-left: 10px; font-weight: bold;"></span>
-  <br><br>
-  <button id="mintNFT">Mint NFT</button>
+  <div class="container">
+    <h1>Mint Your NFT</h1>
+    <button id="connectWallet">Connect Wallet</button>
+    <span id="walletAddress" style="margin-left: 10px;"></span>
+    <br><br>
+    <button id="mintNFT">Mint NFT</button>
+  </div>
 
   <script>
     const contractAddress = "0x7E1b2642c7c68Ba35848ef84b43C189ad0b8A799";
